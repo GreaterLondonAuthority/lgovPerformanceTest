@@ -63,9 +63,14 @@ jobs:
           # Install JMeter Plugins Manager
           wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
           
-          # Install required plugins for UltimateThreadGroup and Throughput Shaping Timer
+          # Install required plugins for UltimateThreadGroup, Throughput Shaping Timer, and Graphs
           wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-casutg/2.10/jmeter-plugins-casutg-2.10.jar
           wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-tst/2.6/jmeter-plugins-tst-2.6.jar
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-graphs-basic/2.0/jmeter-plugins-graphs-basic-2.0.jar
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-graphs-additional/2.0/jmeter-plugins-graphs-additional-2.0.jar
+          
+          # Install JMeter Plugins Common classes (required dependency)
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-cmn-jmeter/0.7/jmeter-plugins-cmn-jmeter-0.7.jar
           
           cd ../../..
           echo "✅ JMeter plugins installed"
