@@ -12,6 +12,26 @@ jobs:
   performance-test:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - name: "BrowseNormal-Baseline-1VU"
+            path: "Performancestests/LGOV/BrowseNormal/Baseline-1VU"
+            jmx: "LGOV-PerfTest-BrowseNormal-Baseline-1VU.jmx"
+            type: "baseline"
+          - name: "BrowseNormal-VURamp1"
+            path: "Performancestests/LGOV/BrowseNormal/VURamp1"
+            jmx: "LGOV-PerfTest-BrowseNormal-VURamp1.jmx"
+            type: "vuramp"
+          - name: "SimpleSearch-Baseline-1VU"
+            path: "Performancestests/LGOV/SimpleSearch/Baseline-1VU"
+            jmx: "LGOV-PerfTest-SimpleSearch-Baseline-1VU.jmx"
+            type: "baseline"
+          - name: "SimpleSearch-VURamp1"
+            path: "Performancestests/LGOV/SimpleSearch/VURamp1"
+            jmx: "LGOV-PerfTest-SimpleSearch-VURamp1.jmx"
+            type: "vuramp"
     
     env:
       JMETER_VERSION: "5.6.3"
@@ -43,8 +63,9 @@ jobs:
           # Install JMeter Plugins Manager
           wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
           
-          # Install required plugins for UltimateThreadGroup
+          # Install required plugins for UltimateThreadGroup and Throughput Shaping Timer
           wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-casutg/2.10/jmeter-plugins-casutg-2.10.jar
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-tst/2.6/jmeter-plugins-tst-2.6.jar
           
           cd ../../..
           echo "✅ JMeter plugins installed"
@@ -52,10 +73,20 @@ jobs:
       - name: Verify JMeter installation
         run: jmeter --version
 
-      - name: Run JMeter Test
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Run JMeter Test - ${{ matrix.test.name }}
         run: |
           set -euo pipefail
-          mkdir -p artifacts
+          
+          # Navigate to test directory
+          cd ${{ matrix.test.path }}
+          
+          # Create artifacts directory in repo root
+          mkdir -p ../../../../artifacts/${{ matrix.test.name }}
           
           # Load test parameters from test.yml
           START_THREADS=$(yq '.thread-config.start-threads' test.yml)
@@ -65,34 +96,53 @@ jobs:
           SHUTDOWN_TIME=$(yq '.thread-config.shutdown-time' test.yml)
           
           echo "🚀 Starting JMeter performance test..."
-          echo "📝 Test Plan: LGOV-PerfTest-BrowseNormal-Baseline-1VU"
+          echo "📝 Test Plan: ${{ matrix.test.name }}"
           echo "⏱️  Hold Load: $HOLD_LOAD seconds"
           echo "👥 Users: $START_THREADS concurrent"
           echo "🎯 Target: lgov-perftest.london.gov.uk"
+          
+          # Build JMeter command
+          JMETER_CMD="jmeter -n -t ${{ matrix.test.jmx }} \
+            -l ../../../../artifacts/${{ matrix.test.name }}/results.jtl \
+            -j ../../../../artifacts/${{ matrix.test.name }}/jmeter.log \
+            -e -o ../../../../artifacts/${{ matrix.test.name }}/html-report \
+            -JSTART_THREADS=${START_THREADS} \
+            -JINITIAL_DELAY=${INITIAL_DELAY} \
+            -JSTARTUP_TIME=${STARTUP_TIME} \
+            -JHOLD_LOAD=${HOLD_LOAD} \
+            -JSHUTDOWN_TIME=${SHUTDOWN_TIME}"
+          
+          # Add throughput parameters for VURamp tests
+          if [ "${{ matrix.test.type }}" == "vuramp" ]; then
+            RPS_START=$(yq '.throughput-config.ramp-phase.start-rps' test.yml)
+            RPS_END=$(yq '.throughput-config.ramp-phase.end-rps' test.yml)
+            RAMP_DURATION=$(yq '.throughput-config.ramp-phase.duration' test.yml)
+            HOLD_DURATION=$(yq '.throughput-config.hold-phase.duration' test.yml)
+            
+            echo "🔧 Throughput: ${RPS_START} → ${RPS_END} RPS over ${RAMP_DURATION}s"
+            
+            JMETER_CMD="$JMETER_CMD \
+              -JRPS_START=${RPS_START} \
+              -JRPS_END=${RPS_END} \
+              -JRAMP_DURATION=${RAMP_DURATION} \
+              -JHOLD_DURATION=${HOLD_DURATION}"
+          fi
+          
           echo ""
           
-          jmeter -n \
-            -q tests/jmeter.properties \
-            -t LGOV-PerfTest-BrowseNormal-Baseline-1VU.jmx \
-            -l artifacts/results.jtl \
-            -j artifacts/jmeter.log \
-            -e -o artifacts/html-report \
-            -JSTART_THREADS="${START_THREADS}" \
-            -JINITIAL_DELAY="${INITIAL_DELAY}" \
-            -JSTARTUP_TIME="${STARTUP_TIME}" \
-            -JHOLD_LOAD="${HOLD_LOAD}" \
-            -JSHUTDOWN_TIME="${SHUTDOWN_TIME}"
+          # Execute JMeter
+          eval $JMETER_CMD
           
           echo "🏁 JMeter test completed!"
 
       - name: Display Test Results Summary
         if: always()
         run: |
-          echo "## 📊 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Test Results Summary - ${{ matrix.test.name }}" >> $GITHUB_STEP_SUMMARY
           
-          if [ -f artifacts/results.jtl ]; then
-            TOTAL_SAMPLES=$(tail -n +2 artifacts/results.jtl | wc -l)
-            ERRORS=$(tail -n +2 artifacts/results.jtl | awk -F',' '{print $8}' | grep -c "false" || echo "0")
+          if [ -f artifacts/${{ matrix.test.name }}/results.jtl ]; then
+            TOTAL_SAMPLES=$(tail -n +2 artifacts/${{ matrix.test.name }}/results.jtl | wc -l)
+            ERRORS=$(tail -n +2 artifacts/${{ matrix.test.name }}/results.jtl | awk -F',' '{print $8}' | grep -c "false" || echo "0")
             
             if [ "$TOTAL_SAMPLES" -gt 0 ]; then
               SUCCESS_RATE=$(awk -v total="$TOTAL_SAMPLES" -v errors="$ERRORS" 'BEGIN {printf "%.2f%%", ((total-errors)/total)*100}')
@@ -100,12 +150,10 @@ jobs:
               SUCCESS_RATE="0%"
             fi
             
-            echo "- **Test Plan:** LGOV-PerfTest-BrowseNormal-Baseline-1VU" >> $GITHUB_STEP_SUMMARY
+            echo "- **Test Plan:** ${{ matrix.test.name }}" >> $GITHUB_STEP_SUMMARY
             echo "- **Total Requests:** $TOTAL_SAMPLES" >> $GITHUB_STEP_SUMMARY
             echo "- **Errors:** $ERRORS" >> $GITHUB_STEP_SUMMARY
             echo "- **Success Rate:** $SUCCESS_RATE" >> $GITHUB_STEP_SUMMARY
-            echo "- **Duration:** 10 minutes (600 seconds)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Concurrent Users:** 1" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ No results file found" >> $GITHUB_STEP_SUMMARY
           fi
@@ -114,6 +162,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jmeter-report
-          path: artifacts/
+          name: jmeter-report-${{ matrix.test.name }}
+          path: artifacts/${{ matrix.test.name }}/
           retention-days: 14
