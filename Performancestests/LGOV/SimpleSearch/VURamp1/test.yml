@@ -1,0 +1,30 @@
+modules:
+  blazemeter:
+    token: ${BLAZEMETER_API_KEY}
+
+execution:
+  - executor: jmeter
+    scenario: load-test
+
+scenarios:
+  load-test:
+    script: LGOV-PerfTest-SimpleSearch-VURamp1.jmx
+
+# UltimateThreadGroup Parameters
+thread-config:
+  start-threads: 300      # Number of threads to start
+  initial-delay: 0        # Initial delay in seconds
+  startup-time: 1800      # Startup time in seconds (30 minutes)
+  hold-load: 1800         # Hold load for seconds (30 minutes)
+  shutdown-time: 600      # Shutdown time in seconds (10 minutes)
+
+# Throughput Shaping Timer
+throughput-config:
+  ramp-phase: 
+    start-rps: 1          # Starting requests per second
+    end-rps: 11           # Target requests per second
+    duration: 3600        # Ramp duration in seconds (1 hour)
+  hold-phase:
+    start-rps: 11         # Starting requests per second
+    end-rps: 1            # Ending requests per second
+    duration: 300         # Hold duration in seconds (5 minutes)

@@ -5,9 +5,6 @@ modules:
 execution:
   - executor: jmeter
     scenario: load-test
-    concurrency: 10 #virtual users
-    ramp-up: 2m #gradually start all 10users
-    hold-for: 30m #keep the test running for this time in minutes
 
 scenarios:
   load-test:

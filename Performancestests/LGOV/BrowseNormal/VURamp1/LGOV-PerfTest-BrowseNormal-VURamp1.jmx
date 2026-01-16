@@ -6,7 +6,53 @@
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments"/>
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="THREADS" elementType="Argument">
+            <stringProp name="Argument.name">THREADS</stringProp>
+            <stringProp name="Argument.value">300</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="INITIAL_DELAY" elementType="Argument">
+            <stringProp name="Argument.name">INITIAL_DELAY</stringProp>
+            <stringProp name="Argument.value">0</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="STARTUP_TIME" elementType="Argument">
+            <stringProp name="Argument.name">STARTUP_TIME</stringProp>
+            <stringProp name="Argument.value">1800</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="HOLD_TIME" elementType="Argument">
+            <stringProp name="Argument.name">HOLD_TIME</stringProp>
+            <stringProp name="Argument.value">1800</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="SHUTDOWN_TIME" elementType="Argument">
+            <stringProp name="Argument.name">SHUTDOWN_TIME</stringProp>
+            <stringProp name="Argument.value">600</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="RPS_START" elementType="Argument">
+            <stringProp name="Argument.name">RPS_START</stringProp>
+            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="RPS_END" elementType="Argument">
+            <stringProp name="Argument.name">RPS_END</stringProp>
+            <stringProp name="Argument.value">11</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="RAMP_DURATION" elementType="Argument">
+            <stringProp name="Argument.name">RAMP_DURATION</stringProp>
+            <stringProp name="Argument.value">3600</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="HOLD_DURATION" elementType="Argument">
+            <stringProp name="Argument.name">HOLD_DURATION</stringProp>
+            <stringProp name="Argument.value">600</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
       </elementProp>
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
@@ -35,11 +81,11 @@
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="VU Ramp 1" enabled="true">
         <collectionProp name="ultimatethreadgroupdata">
           <collectionProp name="1921916189">
-            <stringProp name="50547">300</stringProp>
-            <stringProp name="48">0</stringProp>
-            <stringProp name="1515111">1800</stringProp>
-            <stringProp name="1515111">1800</stringProp>
-            <stringProp name="53430">600</stringProp>
+            <stringProp name="50547">${__P(START_THREADS,${THREADS})}</stringProp>
+            <stringProp name="48">${__P(INITIAL_DELAY,${INITIAL_DELAY})}</stringProp>
+            <stringProp name="1515111">${__P(STARTUP_TIME,${STARTUP_TIME})}</stringProp>
+            <stringProp name="1515111">${__P(HOLD_LOAD,${HOLD_TIME})}</stringProp>
+            <stringProp name="53430">${__P(SHUTDOWN_TIME,${SHUTDOWN_TIME})}</stringProp>
           </collectionProp>
         </collectionProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -52,7 +98,7 @@
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config" enabled="true">
           <stringProp name="delimiter">,</stringProp>
           <stringProp name="fileEncoding">UTF-8</stringProp>
-          <stringProp name="filename">D:\++ WORK ++\PERF_TEST_REGRESSION_PACKS\LGOV\BrowseNormal\VURamp1\BrowseURLs.csv</stringProp>
+          <stringProp name="filename">BrowseURLs.csv</stringProp>
           <boolProp name="quotedData">false</boolProp>
           <boolProp name="recycle">true</boolProp>
           <stringProp name="shareMode">shareMode.all</stringProp>
@@ -105,14 +151,14 @@
         <kg.apc.jmeter.timers.VariableThroughputTimer guiclass="kg.apc.jmeter.timers.VariableThroughputTimerGui" testclass="kg.apc.jmeter.timers.VariableThroughputTimer" testname="jp@gc - Throughput Shaping Timer" enabled="true">
           <collectionProp name="load_profile">
             <collectionProp name="-1800939247">
-              <stringProp name="49">1</stringProp>
-              <stringProp name="1568">11</stringProp>
-              <stringProp name="1572771">3600</stringProp>
+              <stringProp name="49">${__P(RPS_START,${RPS_START})}</stringProp>
+              <stringProp name="1568">${__P(RPS_END,${RPS_END})}</stringProp>
+              <stringProp name="1572771">${__P(RAMP_DURATION,${RAMP_DURATION})}</stringProp>
             </collectionProp>
             <collectionProp name="-161620239">
-              <stringProp name="1568">11</stringProp>
-              <stringProp name="49">1</stringProp>
-              <stringProp name="53430">600</stringProp>
+              <stringProp name="1568">${__P(RPS_END,${RPS_END})}</stringProp>
+              <stringProp name="49">${__P(RPS_START,${RPS_START})}</stringProp>
+              <stringProp name="53430">${__P(HOLD_DURATION,${HOLD_DURATION})}</stringProp>
             </collectionProp>
           </collectionProp>
           <stringProp name="TestPlan.comments">Table below sets request rate schedule and preview graph instantly shows effect of changes.</stringProp>

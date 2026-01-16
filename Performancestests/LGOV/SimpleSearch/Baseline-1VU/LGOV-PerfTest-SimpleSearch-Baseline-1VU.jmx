@@ -6,7 +6,33 @@
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments"/>
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="THREADS" elementType="Argument">
+            <stringProp name="Argument.name">THREADS</stringProp>
+            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="INITIAL_DELAY" elementType="Argument">
+            <stringProp name="Argument.name">INITIAL_DELAY</stringProp>
+            <stringProp name="Argument.value">0</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="STARTUP_TIME" elementType="Argument">
+            <stringProp name="Argument.name">STARTUP_TIME</stringProp>
+            <stringProp name="Argument.value">0</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="HOLD_TIME" elementType="Argument">
+            <stringProp name="Argument.name">HOLD_TIME</stringProp>
+            <stringProp name="Argument.value">600</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="SHUTDOWN_TIME" elementType="Argument">
+            <stringProp name="Argument.name">SHUTDOWN_TIME</stringProp>
+            <stringProp name="Argument.value">10</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
       </elementProp>
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
@@ -35,7 +61,7 @@
       <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="URLs from CSV file" enabled="true">
         <stringProp name="delimiter">,</stringProp>
         <stringProp name="fileEncoding">UTF-8</stringProp>
-        <stringProp name="filename">D:\++ WORK ++\PERF_TEST_REGRESSION_PACKS\LGOV\SimpleSearch\Baseline-1VU\SearchTerms.csv</stringProp>
+        <stringProp name="filename">SearchTerms.csv</stringProp>
         <boolProp name="quotedData">false</boolProp>
         <boolProp name="recycle">true</boolProp>
         <stringProp name="shareMode">shareMode.all</stringProp>
@@ -47,11 +73,11 @@
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="Baseline 1VU" enabled="true">
         <collectionProp name="ultimatethreadgroupdata">
           <collectionProp name="1775280373">
-            <stringProp name="49">1</stringProp>
-            <stringProp name="48">0</stringProp>
-            <stringProp name="48">0</stringProp>
-            <stringProp name="53430">600</stringProp>
-            <stringProp name="1567">10</stringProp>
+            <stringProp name="49">${__P(START_THREADS,${THREADS})}</stringProp>
+            <stringProp name="48">${__P(INITIAL_DELAY,${INITIAL_DELAY})}</stringProp>
+            <stringProp name="48">${__P(STARTUP_TIME,${STARTUP_TIME})}</stringProp>
+            <stringProp name="53430">${__P(HOLD_LOAD,${HOLD_TIME})}</stringProp>
+            <stringProp name="1567">${__P(SHUTDOWN_TIME,${SHUTDOWN_TIME})}</stringProp>
           </collectionProp>
         </collectionProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">

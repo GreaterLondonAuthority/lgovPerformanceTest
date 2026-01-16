@@ -1,0 +1,19 @@
+modules:
+  blazemeter:
+    token: ${BLAZEMETER_API_KEY}
+
+execution:
+  - executor: jmeter
+    scenario: load-test
+
+scenarios:
+  load-test:
+    script: LGOV-PerfTest-SimpleSearch-Baseline-1VU.jmx
+
+# UltimateThreadGroup Parameters
+thread-config:
+  start-threads: 1        # Number of threads to start
+  initial-delay: 0        # Initial delay in seconds
+  startup-time: 0         # Startup time in seconds
+  hold-load: 600          # Hold load for seconds (10 minutes)
+  shutdown-time: 10       # Shutdown time in seconds
