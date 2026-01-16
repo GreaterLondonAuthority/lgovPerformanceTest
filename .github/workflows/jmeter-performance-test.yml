@@ -1,0 +1,119 @@
+name: JMeter Performance Test
+
+on:
+  push:
+    branches: [ develop, main, oldTestsforPerformancetestUploaded ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    
+    env:
+      JMETER_VERSION: "5.6.3"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Install JMeter
+        run: |
+          set -e
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz
+          tar -xzf apache-jmeter-${JMETER_VERSION}.tgz
+          echo "$PWD/apache-jmeter-${JMETER_VERSION}/bin" >> $GITHUB_PATH
+
+      - name: Install JMeter Plugins
+        run: |
+          set -e
+          cd apache-jmeter-${JMETER_VERSION}/lib/ext
+          
+          # Install JMeter Plugins Manager
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
+          
+          # Install required plugins for UltimateThreadGroup
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-casutg/2.10/jmeter-plugins-casutg-2.10.jar
+          
+          cd ../../..
+          echo "✅ JMeter plugins installed"
+
+      - name: Verify JMeter installation
+        run: jmeter --version
+
+      - name: Run JMeter Test
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          
+          # Load test parameters from test.yml
+          START_THREADS=$(yq '.thread-config.start-threads' test.yml)
+          INITIAL_DELAY=$(yq '.thread-config.initial-delay' test.yml)
+          STARTUP_TIME=$(yq '.thread-config.startup-time' test.yml)
+          HOLD_LOAD=$(yq '.thread-config.hold-load' test.yml)
+          SHUTDOWN_TIME=$(yq '.thread-config.shutdown-time' test.yml)
+          
+          echo "🚀 Starting JMeter performance test..."
+          echo "📝 Test Plan: LGOV-PerfTest-BrowseNormal-Baseline-1VU"
+          echo "⏱️  Hold Load: $HOLD_LOAD seconds"
+          echo "👥 Users: $START_THREADS concurrent"
+          echo "🎯 Target: lgov-perftest.london.gov.uk"
+          echo ""
+          
+          jmeter -n \
+            -q tests/jmeter.properties \
+            -t LGOV-PerfTest-BrowseNormal-Baseline-1VU.jmx \
+            -l artifacts/results.jtl \
+            -j artifacts/jmeter.log \
+            -e -o artifacts/html-report \
+            -JSTART_THREADS="${START_THREADS}" \
+            -JINITIAL_DELAY="${INITIAL_DELAY}" \
+            -JSTARTUP_TIME="${STARTUP_TIME}" \
+            -JHOLD_LOAD="${HOLD_LOAD}" \
+            -JSHUTDOWN_TIME="${SHUTDOWN_TIME}"
+          
+          echo "🏁 JMeter test completed!"
+
+      - name: Display Test Results Summary
+        if: always()
+        run: |
+          echo "## 📊 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f artifacts/results.jtl ]; then
+            TOTAL_SAMPLES=$(tail -n +2 artifacts/results.jtl | wc -l)
+            ERRORS=$(tail -n +2 artifacts/results.jtl | awk -F',' '{print $8}' | grep -c "false" || echo "0")
+            
+            if [ "$TOTAL_SAMPLES" -gt 0 ]; then
+              SUCCESS_RATE=$(awk -v total="$TOTAL_SAMPLES" -v errors="$ERRORS" 'BEGIN {printf "%.2f%%", ((total-errors)/total)*100}')
+            else
+              SUCCESS_RATE="0%"
+            fi
+            
+            echo "- **Test Plan:** LGOV-PerfTest-BrowseNormal-Baseline-1VU" >> $GITHUB_STEP_SUMMARY
+            echo "- **Total Requests:** $TOTAL_SAMPLES" >> $GITHUB_STEP_SUMMARY
+            echo "- **Errors:** $ERRORS" >> $GITHUB_STEP_SUMMARY
+            echo "- **Success Rate:** $SUCCESS_RATE" >> $GITHUB_STEP_SUMMARY
+            echo "- **Duration:** 10 minutes (600 seconds)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Concurrent Users:** 1" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No results file found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload JMeter Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-report
+          path: artifacts/
+          retention-days: 14
