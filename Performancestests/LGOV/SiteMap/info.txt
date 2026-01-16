@@ -1,0 +1,18 @@
+Prod Sitemap
+https://www.london.gov.uk/sitemap.xml
+https://www.london.gov.uk/sitemap.xml?page=1    2000
+https://www.london.gov.uk/sitemap.xml?page=2    2000
+https://www.london.gov.uk/sitemap.xml?page=3    2000
+https://www.london.gov.uk/sitemap.xml?page=4    2000
+https://www.london.gov.uk/sitemap.xml?page=5     224
+  8,224 pages
+
+PerfTest Sitemap
+https://lgov-perftest.london.gov.uk/sitemap.xml
+https://lgov-perftest.london.gov.uk/sitemap.xml?page=1
+https://lgov-perftest.london.gov.uk/sitemap.xml?page=2
+https://lgov-perftest.london.gov.uk/sitemap.xml?page=3
+https://lgov-perftest.london.gov.uk/sitemap.xml?page=4
+https://lgov-perftest.london.gov.uk/sitemap.xml?page=5
+  n,nnn pages
+
