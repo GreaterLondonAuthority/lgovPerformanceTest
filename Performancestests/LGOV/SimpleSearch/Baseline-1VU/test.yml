@@ -10,6 +10,10 @@ scenarios:
   load-test:
     script: LGOV-PerfTest-SimpleSearch-Baseline-1VU.jmx
 
+# Execution Control
+execution-control:
+  allow-concurrent: false  # Set to true to allow multiple instances to run simultaneously
+
 # UltimateThreadGroup Parameters
 thread-config:
   start-threads: 1        # Number of threads to start
