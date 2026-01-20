@@ -1,6 +1,7 @@
 modules:
   blazemeter:
-    token: ${BLAZEMETER_API_KEY}
+    token: ${BLAZEMETER_API_KEY} # Not implemented should only be implemented in the future if required
+
 
 execution:
   - executor: jmeter
