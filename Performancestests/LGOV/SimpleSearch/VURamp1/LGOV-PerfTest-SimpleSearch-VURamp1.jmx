@@ -78,6 +78,19 @@
         </collectionProp>
       </HeaderManager>
       <hashTree/>
+      <AuthManager guiclass="AuthPanel" testclass="AuthManager" testname="HTTP Authorization Manager" enabled="true">
+        <collectionProp name="AuthManager.auth_list">
+          <elementProp name="" elementType="Authorization">
+            <stringProp name="Authorization.url">https://lgov-perftest.london.gov.uk</stringProp>
+            <stringProp name="Authorization.username">${__P(AUTH_USERNAME,${USERNAME})}</stringProp>
+            <stringProp name="Authorization.password">${__P(AUTH_PASSWORD,${PASSWORD})}</stringProp>
+            <stringProp name="Authorization.domain"></stringProp>
+            <stringProp name="Authorization.realm"></stringProp>
+          </elementProp>
+        </collectionProp>
+        <boolProp name="AuthManager.clearEachIteration">false</boolProp>
+      </AuthManager>
+      <hashTree/>
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="VU Ramp 1" enabled="true">
         <collectionProp name="ultimatethreadgroupdata">
           <collectionProp name="1921916189">

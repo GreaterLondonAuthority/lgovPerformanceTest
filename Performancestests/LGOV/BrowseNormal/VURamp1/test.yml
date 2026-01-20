@@ -10,6 +10,10 @@ scenarios:
   load-test:
     script: LGOV-PerfTest-BrowseNormal-VURamp1.jmx
 
+# Execution Control
+execution-control:
+  allow-concurrent: false  # Set to true to allow multiple instances to run simultaneously
+
 # UltimateThreadGroup Parameters
 thread-config:
   start-threads: 300      # Number of threads to start

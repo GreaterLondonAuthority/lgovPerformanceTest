@@ -56,6 +56,8 @@ jobs:
       TEST_PATH: "Performancestests/LGOV/BrowseNormal/Baseline-1VU"
       TEST_JMX: "LGOV-PerfTest-BrowseNormal-Baseline-1VU.jmx"
       TEST_TYPE: "baseline"
+      AUTH_USERNAME: ${{ secrets.JMETER_AUTH_USERNAME }}
+      AUTH_PASSWORD: ${{ secrets.JMETER_AUTH_PASSWORD }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -135,7 +137,9 @@ jobs:
             -JINITIAL_DELAY=${INITIAL_DELAY} \
             -JSTARTUP_TIME=${STARTUP_TIME} \
             -JHOLD_LOAD=${HOLD_LOAD} \
-            -JSHUTDOWN_TIME=${SHUTDOWN_TIME}"
+            -JSHUTDOWN_TIME=${SHUTDOWN_TIME} \
+            -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
+            -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}"
           
           # Execute JMeter
           eval $JMETER_CMD
@@ -184,6 +188,8 @@ jobs:
       TEST_PATH: "Performancestests/LGOV/BrowseNormal/VURamp1"
       TEST_JMX: "LGOV-PerfTest-BrowseNormal-VURamp1.jmx"
       TEST_TYPE: "vuramp"
+      AUTH_USERNAME: ${{ secrets.JMETER_AUTH_USERNAME }}
+      AUTH_PASSWORD: ${{ secrets.JMETER_AUTH_PASSWORD }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -273,7 +279,9 @@ jobs:
             -JRPS_START=${RPS_START} \
             -JRPS_END=${RPS_END} \
             -JRAMP_DURATION=${RAMP_DURATION} \
-            -JHOLD_DURATION=${HOLD_DURATION}
+            -JHOLD_DURATION=${HOLD_DURATION} \
+            -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
+            -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}
           
           echo "🏁 JMeter test completed!"
 
@@ -319,6 +327,8 @@ jobs:
       TEST_PATH: "Performancestests/LGOV/SimpleSearch/Baseline-1VU"
       TEST_JMX: "LGOV-PerfTest-SimpleSearch-Baseline-1VU.jmx"
       TEST_TYPE: "baseline"
+      AUTH_USERNAME: ${{ secrets.JMETER_AUTH_USERNAME }}
+      AUTH_PASSWORD: ${{ secrets.JMETER_AUTH_PASSWORD }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -398,7 +408,9 @@ jobs:
             -JINITIAL_DELAY=${INITIAL_DELAY} \
             -JSTARTUP_TIME=${STARTUP_TIME} \
             -JHOLD_LOAD=${HOLD_LOAD} \
-            -JSHUTDOWN_TIME=${SHUTDOWN_TIME}
+            -JSHUTDOWN_TIME=${SHUTDOWN_TIME} \
+            -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
+            -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}
           
           echo "🏁 JMeter test completed!"
 
@@ -444,6 +456,8 @@ jobs:
       TEST_PATH: "Performancestests/LGOV/SimpleSearch/VURamp1"
       TEST_JMX: "LGOV-PerfTest-SimpleSearch-VURamp1.jmx"
       TEST_TYPE: "vuramp"
+      AUTH_USERNAME: ${{ secrets.JMETER_AUTH_USERNAME }}
+      AUTH_PASSWORD: ${{ secrets.JMETER_AUTH_PASSWORD }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -533,7 +547,9 @@ jobs:
             -JRPS_START=${RPS_START} \
             -JRPS_END=${RPS_END} \
             -JRAMP_DURATION=${RAMP_DURATION} \
-            -JHOLD_DURATION=${HOLD_DURATION}
+            -JHOLD_DURATION=${HOLD_DURATION} \
+            -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
+            -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}
           
           echo "🏁 JMeter test completed!"
 
