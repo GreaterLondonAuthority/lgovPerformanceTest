@@ -58,6 +58,19 @@
         </collectionProp>
       </HeaderManager>
       <hashTree/>
+      <AuthManager guiclass="AuthPanel" testclass="AuthManager" testname="HTTP Authorization Manager" enabled="true">
+        <collectionProp name="AuthManager.auth_list">
+          <elementProp name="" elementType="Authorization">
+            <stringProp name="Authorization.url">https://lgov-perftest.london.gov.uk</stringProp>
+            <stringProp name="Authorization.username">perftest</stringProp>
+            <stringProp name="Authorization.password">P3r4manc3!</stringProp>
+            <stringProp name="Authorization.domain"></stringProp>
+            <stringProp name="Authorization.realm"></stringProp>
+          </elementProp>
+        </collectionProp>
+        <boolProp name="AuthManager.clearEachIteration">false</boolProp>
+      </AuthManager>
+      <hashTree/>
       <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="URLs from CSV file" enabled="true">
         <stringProp name="delimiter">,</stringProp>
         <stringProp name="fileEncoding">UTF-8</stringProp>
