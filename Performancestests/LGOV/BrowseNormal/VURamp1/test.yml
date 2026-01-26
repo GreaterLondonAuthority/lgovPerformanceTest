@@ -10,6 +10,11 @@ scenarios:
   load-test:
     script: LGOV-PerfTest-BrowseNormal-VURamp1.jmx
 
+# Authorization Configuration
+authorization:
+  # url: https://lgov-perftest.london.gov.uk
+    url: https://wwwtest.london.gov.uk    #Active test environment  
+
 # Execution Control
 execution-control:
   allow-concurrent: false  # Set to true to allow multiple instances to run simultaneously
