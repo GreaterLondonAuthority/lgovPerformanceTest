@@ -13,6 +13,7 @@ scenarios:
 
 # Authorization Configuration
 authorization:
+  enabled: false  # Set to true to enable HTTP Basic Authentication
   #url: https://lgov-perftest.london.gov.uk
   url: https://wwwtest.london.gov.uk      #Active test environment
   domain: wwwtest.london.gov.uk

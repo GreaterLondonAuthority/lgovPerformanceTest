@@ -123,9 +123,15 @@ jobs:
           SHUTDOWN_TIME=$(yq '.thread-config.shutdown-time' test.yml)
           
           # Load authorization parameters from test.yml
+          AUTH_ENABLED=$(yq '.authorization.enabled' test.yml)
           AUTHORIZATION_URL=$(yq '.authorization.url' test.yml)
           DOMAIN=$(yq '.authorization.domain' test.yml)
           EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
+          
+          # Set AUTHORIZATION_URL to empty if auth is disabled
+          if [ "$AUTH_ENABLED" = "false" ]; then
+            AUTHORIZATION_URL=""
+          fi
           
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
@@ -268,9 +274,15 @@ jobs:
           HOLD_DURATION=$(yq '.throughput-config.hold-phase.duration' test.yml)
           
           # Load authorization parameters from test.yml
+          AUTH_ENABLED=$(yq '.authorization.enabled' test.yml)
           AUTHORIZATION_URL=$(yq '.authorization.url' test.yml)
           DOMAIN=$(yq '.authorization.domain' test.yml)
           EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
+          
+          # Set AUTHORIZATION_URL to empty if auth is disabled
+          if [ "$AUTH_ENABLED" = "false" ]; then
+            AUTHORIZATION_URL=""
+          fi
           
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
@@ -410,9 +422,15 @@ jobs:
           SHUTDOWN_TIME=$(yq '.thread-config.shutdown-time' test.yml)
           
           # Load authorization parameters from test.yml
+          AUTH_ENABLED=$(yq '.authorization.enabled' test.yml)
           AUTHORIZATION_URL=$(yq '.authorization.url' test.yml)
           DOMAIN=$(yq '.authorization.domain' test.yml)
           EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
+          
+          # Set AUTHORIZATION_URL to empty if auth is disabled
+          if [ "$AUTH_ENABLED" = "false" ]; then
+            AUTHORIZATION_URL=""
+          fi
           
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
@@ -552,9 +570,15 @@ jobs:
           HOLD_DURATION=$(yq '.throughput-config.hold-phase.duration' test.yml)
           
           # Load authorization parameters from test.yml
+          AUTH_ENABLED=$(yq '.authorization.enabled' test.yml)
           AUTHORIZATION_URL=$(yq '.authorization.url' test.yml)
           DOMAIN=$(yq '.authorization.domain' test.yml)
           EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
+          
+          # Set AUTHORIZATION_URL to empty if auth is disabled
+          if [ "$AUTH_ENABLED" = "false" ]; then
+            AUTHORIZATION_URL=""
+          fi
           
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
