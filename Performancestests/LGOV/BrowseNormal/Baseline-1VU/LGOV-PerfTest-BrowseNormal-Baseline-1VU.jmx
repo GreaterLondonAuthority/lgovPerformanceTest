@@ -135,7 +135,7 @@
           <boolProp name="HTTPSampler.BROWSER_COMPATIBLE_MULTIPART">true</boolProp>
           <boolProp name="HTTPSampler.image_parser">true</boolProp>
           <boolProp name="HTTPSampler.concurrentDwn">true</boolProp>
-          <stringProp name="HTTPSampler.embedded_url_re">https://lgov-perftest\.london\.gov\.uk/.*</stringProp>
+          <stringProp name="HTTPSampler.embedded_url_re">${__P(EMBEDDED_URL_RE)}</stringProp>
           <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
           <stringProp name="HTTPSampler.connect_timeout">20000</stringProp>
           <stringProp name="HTTPSampler.response_timeout">20000</stringProp>

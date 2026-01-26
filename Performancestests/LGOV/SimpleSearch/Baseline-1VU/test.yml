@@ -14,6 +14,8 @@ scenarios:
 authorization:
     # url: https://lgov-perftest.london.gov.uk
       url: https://wwwtest.london.gov.uk    #Active test environment
+      embedded_url_re: https://wwwtest\.london\.gov\.uk/.*
+
 # Execution Control
 execution-control:
   allow-concurrent: false  # Set to true to allow multiple instances to run simultaneously
