@@ -122,6 +122,10 @@ jobs:
           HOLD_LOAD=$(yq '.thread-config.hold-load' test.yml)
           SHUTDOWN_TIME=$(yq '.thread-config.shutdown-time' test.yml)
           
+          # Load authorization parameters from test.yml
+          AUTHORIZATION_URL=$(yq '.authorization.url' test.yml)
+          EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
+          
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
           echo "⏱️  Hold Load: $HOLD_LOAD seconds"
@@ -138,6 +142,8 @@ jobs:
             -JSTARTUP_TIME=${STARTUP_TIME} \
             -JHOLD_LOAD=${HOLD_LOAD} \
             -JSHUTDOWN_TIME=${SHUTDOWN_TIME} \
+            -JAUTHORIZATION_URL=${AUTHORIZATION_URL} \
+            -JEMBEDDED_URL_RE=${EMBEDDED_URL_RE} \
             -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
             -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}"
           
@@ -259,6 +265,10 @@ jobs:
           RAMP_DURATION=$(yq '.throughput-config.ramp-phase.duration' test.yml)
           HOLD_DURATION=$(yq '.throughput-config.hold-phase.duration' test.yml)
           
+          # Load authorization parameters from test.yml
+          AUTHORIZATION_URL=$(yq '.authorization.url' test.yml)
+          EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
+          
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
           echo "⏱️  Hold Load: $HOLD_LOAD seconds"
@@ -280,6 +290,8 @@ jobs:
             -JRPS_END=${RPS_END} \
             -JRAMP_DURATION=${RAMP_DURATION} \
             -JHOLD_DURATION=${HOLD_DURATION} \
+            -JAUTHORIZATION_URL=${AUTHORIZATION_URL} \
+            -JEMBEDDED_URL_RE=${EMBEDDED_URL_RE} \
             -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
             -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}
           
@@ -393,6 +405,10 @@ jobs:
           HOLD_LOAD=$(yq '.thread-config.hold-load' test.yml)
           SHUTDOWN_TIME=$(yq '.thread-config.shutdown-time' test.yml)
           
+          # Load authorization parameters from test.yml
+          AUTHORIZATION_URL=$(yq '.authorization.url' test.yml)
+          EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
+          
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
           echo "⏱️  Hold Load: $HOLD_LOAD seconds"
@@ -409,6 +425,8 @@ jobs:
             -JSTARTUP_TIME=${STARTUP_TIME} \
             -JHOLD_LOAD=${HOLD_LOAD} \
             -JSHUTDOWN_TIME=${SHUTDOWN_TIME} \
+            -JAUTHORIZATION_URL=${AUTHORIZATION_URL} \
+            -JEMBEDDED_URL_RE=${EMBEDDED_URL_RE} \
             -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
             -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}
           
@@ -527,6 +545,10 @@ jobs:
           RAMP_DURATION=$(yq '.throughput-config.ramp-phase.duration' test.yml)
           HOLD_DURATION=$(yq '.throughput-config.hold-phase.duration' test.yml)
           
+          # Load authorization parameters from test.yml
+          AUTHORIZATION_URL=$(yq '.authorization.url' test.yml)
+          EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
+          
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
           echo "⏱️  Hold Load: $HOLD_LOAD seconds"
@@ -548,6 +570,8 @@ jobs:
             -JRPS_END=${RPS_END} \
             -JRAMP_DURATION=${RAMP_DURATION} \
             -JHOLD_DURATION=${HOLD_DURATION} \
+            -JAUTHORIZATION_URL=${AUTHORIZATION_URL} \
+            -JEMBEDDED_URL_RE=${EMBEDDED_URL_RE} \
             -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
             -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}
           
