@@ -124,6 +124,7 @@ jobs:
           
           # Load authorization parameters from test.yml
           AUTHORIZATION_URL=$(yq '.authorization.url' test.yml)
+          DOMAIN=$(yq '.authorization.domain' test.yml)
           EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
           
           echo "🚀 Starting JMeter performance test..."
@@ -143,6 +144,7 @@ jobs:
             -JHOLD_LOAD=${HOLD_LOAD} \
             -JSHUTDOWN_TIME=${SHUTDOWN_TIME} \
             -JAUTHORIZATION_URL=${AUTHORIZATION_URL} \
+            -JDOMAIN=${DOMAIN} \
             -JEMBEDDED_URL_RE=${EMBEDDED_URL_RE} \
             -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
             -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}"
