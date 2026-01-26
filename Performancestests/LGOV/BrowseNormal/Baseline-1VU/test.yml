@@ -29,6 +29,6 @@ thread-config:
   start-threads: 1        # Number of threads to start
   initial-delay: 0        # Initial delay in seconds
   startup-time: 0         # Startup time in seconds
-  hold-load: 120          # Hold load for seconds (10 minutes)
+  hold-load: 600          # Hold load for seconds (10 minutes)
   shutdown-time: 10       # Shutdown time in seconds
 

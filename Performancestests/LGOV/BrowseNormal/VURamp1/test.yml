@@ -38,4 +38,4 @@ throughput-config:
   hold-phase:
     start-rps: 11         # Starting requests per second
     end-rps: 1            # Ending requests per second
-    duration: 600         # Hold duration in seconds (10 minutes)
+    duration: 120         # Hold duration in seconds (10 minutes)
