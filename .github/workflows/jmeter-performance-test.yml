@@ -219,29 +219,36 @@ jobs:
           set -e
           sudo apt-get update
           sudo apt-get install -y wget
-          cd $GITHUB_WORKSPACE
+          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz
+          tar -xzf apache-jmeter-${JMETER_VERSION}.tgz
+          echo "$PWD/apache-jmeter-${JMETER_VERSION}/bin" >> $GITHUB_PATH
+
+      - name: Install JMeter Plugins
+        run: |
+          set -e
+          cd apache-jmeter-${JMETER_VERSION}/lib/ext
           
-          wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${{ env.JMETER_VERSION }}.tgz
-          tar -xzf apache-jmeter-${{ env.JMETER_VERSION }}.tgz
+          # Install JMeter Plugins Manager
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
           
-          # Install JMeter plugins
-          cd apache-jmeter-${{ env.JMETER_VERSION }}/lib/ext
-          wget https://jmeter-plugins.org/files/packages/jpgc-graphs-basic-2.0.zip
-          unzip -o jpgc-graphs-basic-2.0.zip
-          wget https://jmeter-plugins.org/files/packages/jpgc-graphs-additional-2.0.zip
-          unzip -o jpgc-graphs-additional-2.0.zip
-          wget https://jmeter-plugins.org/files/packages/jpgc-casutg-2.10.zip
-          unzip -o jpgc-casutg-2.10.zip
-          wget https://jmeter-plugins.org/files/packages/jpgc-tst-2.6.zip
-          unzip -o jpgc-tst-2.6.zip
-          wget https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
-          wget https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.3/cmdrunner-2.3.jar
+          # Install required plugins for UltimateThreadGroup, Throughput Shaping Timer, and Graphs
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-casutg/2.10/jmeter-plugins-casutg-2.10.jar
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-tst/2.6/jmeter-plugins-tst-2.6.jar
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-graphs-basic/2.0/jmeter-plugins-graphs-basic-2.0.jar
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-graphs-additional/2.0/jmeter-plugins-graphs-additional-2.0.jar
           
-          cd $GITHUB_WORKSPACE
-          export PATH=$GITHUB_WORKSPACE/apache-jmeter-${{ env.JMETER_VERSION }}/bin:$PATH
+          # Install JMeter Plugins Common classes (required dependency)
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-cmn-jmeter/0.7/jmeter-plugins-cmn-jmeter-0.7.jar
           
+          cd ../../..
+          echo "✅ JMeter plugins installed"
+
+      - name: Verify JMeter installation
+        run: |
           jmeter --version
-          
+          echo "Installed plugins:"
+          ls -lh apache-jmeter-${JMETER_VERSION}/lib/ext/*.jar
+
       - name: Install yq
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
@@ -366,29 +373,36 @@ jobs:
           set -e
           sudo apt-get update
           sudo apt-get install -y wget
-          cd $GITHUB_WORKSPACE
+          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz
+          tar -xzf apache-jmeter-${JMETER_VERSION}.tgz
+          echo "$PWD/apache-jmeter-${JMETER_VERSION}/bin" >> $GITHUB_PATH
+
+      - name: Install JMeter Plugins
+        run: |
+          set -e
+          cd apache-jmeter-${JMETER_VERSION}/lib/ext
           
-          wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${{ env.JMETER_VERSION }}.tgz
-          tar -xzf apache-jmeter-${{ env.JMETER_VERSION }}.tgz
+          # Install JMeter Plugins Manager
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
           
-          # Install JMeter plugins
-          cd apache-jmeter-${{ env.JMETER_VERSION }}/lib/ext
-          wget https://jmeter-plugins.org/files/packages/jpgc-graphs-basic-2.0.zip
-          unzip -o jpgc-graphs-basic-2.0.zip
-          wget https://jmeter-plugins.org/files/packages/jpgc-graphs-additional-2.0.zip
-          unzip -o jpgc-graphs-additional-2.0.zip
-          wget https://jmeter-plugins.org/files/packages/jpgc-casutg-2.10.zip
-          unzip -o jpgc-casutg-2.10.zip
-          wget https://jmeter-plugins.org/files/packages/jpgc-tst-2.6.zip
-          unzip -o jpgc-tst-2.6.zip
-          wget https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
-          wget https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.3/cmdrunner-2.3.jar
+          # Install required plugins for UltimateThreadGroup, Throughput Shaping Timer, and Graphs
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-casutg/2.10/jmeter-plugins-casutg-2.10.jar
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-tst/2.6/jmeter-plugins-tst-2.6.jar
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-graphs-basic/2.0/jmeter-plugins-graphs-basic-2.0.jar
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-graphs-additional/2.0/jmeter-plugins-graphs-additional-2.0.jar
           
-          cd $GITHUB_WORKSPACE
-          export PATH=$GITHUB_WORKSPACE/apache-jmeter-${{ env.JMETER_VERSION }}/bin:$PATH
+          # Install JMeter Plugins Common classes (required dependency)
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-cmn-jmeter/0.7/jmeter-plugins-cmn-jmeter-0.7.jar
           
+          cd ../../..
+          echo "✅ JMeter plugins installed"
+
+      - name: Verify JMeter installation
+        run: |
           jmeter --version
-          
+          echo "Installed plugins:"
+          ls -lh apache-jmeter-${JMETER_VERSION}/lib/ext/*.jar
+
       - name: Install yq
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
