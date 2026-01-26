@@ -128,18 +128,14 @@ jobs:
           DOMAIN=$(yq '.authorization.domain' test.yml)
           EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
           
-          # Set AUTHORIZATION_URL to empty if auth is disabled
-          if [ "$AUTH_ENABLED" = "false" ]; then
-            AUTHORIZATION_URL=""
-          fi
-          
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
           echo "⏱️  Hold Load: $HOLD_LOAD seconds"
           echo "👥 Users: $START_THREADS concurrent"
           echo "🎯 Target: lgov-perftest.london.gov.uk"
+          echo "🔐 Authorization: $AUTH_ENABLED"
           
-          # Build JMeter command
+          # Build JMeter command with conditional authorization
           JMETER_CMD="jmeter -n -t ${{ env.TEST_JMX }} \
             -l ../../../../artifacts/${{ env.TEST_NAME }}/results.jtl \
             -j ../../../../artifacts/${{ env.TEST_NAME }}/jmeter.log \
@@ -149,11 +145,15 @@ jobs:
             -JSTARTUP_TIME=${STARTUP_TIME} \
             -JHOLD_LOAD=${HOLD_LOAD} \
             -JSHUTDOWN_TIME=${SHUTDOWN_TIME} \
-            -JAUTHORIZATION_URL=${AUTHORIZATION_URL} \
             -JDOMAIN=${DOMAIN} \
             -JEMBEDDED_URL_RE=${EMBEDDED_URL_RE} \
             -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
             -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}"
+          
+          # Add AUTHORIZATION_URL only if auth is enabled
+          if [ "$AUTH_ENABLED" = "true" ]; then
+            JMETER_CMD="$JMETER_CMD -JAUTHORIZATION_URL=${AUTHORIZATION_URL}"
+          fi
           
           # Execute JMeter
           eval $JMETER_CMD
@@ -219,49 +219,40 @@ jobs:
           set -e
           sudo apt-get update
           sudo apt-get install -y wget
-          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz
-          tar -xzf apache-jmeter-${JMETER_VERSION}.tgz
-          echo "$PWD/apache-jmeter-${JMETER_VERSION}/bin" >> $GITHUB_PATH
-
-      - name: Install JMeter Plugins
-        run: |
-          set -e
-          cd apache-jmeter-${JMETER_VERSION}/lib/ext
+          cd $GITHUB_WORKSPACE
           
-          # Install JMeter Plugins Manager
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
+          wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${{ env.JMETER_VERSION }}.tgz
+          tar -xzf apache-jmeter-${{ env.JMETER_VERSION }}.tgz
           
-          # Install required plugins for UltimateThreadGroup, Throughput Shaping Timer, and Graphs
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-casutg/2.10/jmeter-plugins-casutg-2.10.jar
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-tst/2.6/jmeter-plugins-tst-2.6.jar
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-graphs-basic/2.0/jmeter-plugins-graphs-basic-2.0.jar
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-graphs-additional/2.0/jmeter-plugins-graphs-additional-2.0.jar
+          # Install JMeter plugins
+          cd apache-jmeter-${{ env.JMETER_VERSION }}/lib/ext
+          wget https://jmeter-plugins.org/files/packages/jpgc-graphs-basic-2.0.zip
+          unzip -o jpgc-graphs-basic-2.0.zip
+          wget https://jmeter-plugins.org/files/packages/jpgc-graphs-additional-2.0.zip
+          unzip -o jpgc-graphs-additional-2.0.zip
+          wget https://jmeter-plugins.org/files/packages/jpgc-casutg-2.10.zip
+          unzip -o jpgc-casutg-2.10.zip
+          wget https://jmeter-plugins.org/files/packages/jpgc-tst-2.6.zip
+          unzip -o jpgc-tst-2.6.zip
+          wget https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
+          wget https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.3/cmdrunner-2.3.jar
           
-          # Install JMeter Plugins Common classes (required dependency)
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-cmn-jmeter/0.7/jmeter-plugins-cmn-jmeter-0.7.jar
+          cd $GITHUB_WORKSPACE
+          export PATH=$GITHUB_WORKSPACE/apache-jmeter-${{ env.JMETER_VERSION }}/bin:$PATH
           
-          cd ../../..
-          echo "✅ JMeter plugins installed"
-
-      - name: Verify JMeter installation
-        run: jmeter --version
-
+          jmeter --version
+          
       - name: Install yq
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      - name: Run JMeter Test - ${{ env.TEST_NAME }}
+      - name: Run Performance Test
+        working-directory: ${{ env.TEST_PATH }}
         run: |
-          set -euo pipefail
+          set -e
+          export PATH=$GITHUB_WORKSPACE/apache-jmeter-${{ env.JMETER_VERSION }}/bin:$PATH
           
-          # Navigate to test directory
-          cd ${{ env.TEST_PATH }}
-          
-          # Create artifacts directory in repo root
-          mkdir -p ../../../../artifacts/${{ env.TEST_NAME }}
-          
-          # Load test parameters from test.yml
           START_THREADS=$(yq '.thread-config.start-threads' test.yml)
           INITIAL_DELAY=$(yq '.thread-config.initial-delay' test.yml)
           STARTUP_TIME=$(yq '.thread-config.startup-time' test.yml)
@@ -279,20 +270,16 @@ jobs:
           DOMAIN=$(yq '.authorization.domain' test.yml)
           EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
           
-          # Set AUTHORIZATION_URL to empty if auth is disabled
-          if [ "$AUTH_ENABLED" = "false" ]; then
-            AUTHORIZATION_URL=""
-          fi
-          
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
           echo "⏱️  Hold Load: $HOLD_LOAD seconds"
           echo "👥 Users: $START_THREADS concurrent"
           echo "🔧 Throughput: ${RPS_START} → ${RPS_END} RPS over ${RAMP_DURATION}s"
           echo "🎯 Target: lgov-perftest.london.gov.uk"
+          echo "🔐 Authorization: $AUTH_ENABLED"
           
-          # Build JMeter command with throughput parameters
-          jmeter -n -t ${{ env.TEST_JMX }} \
+          # Build JMeter command with throughput parameters and conditional authorization
+          JMETER_CMD="jmeter -n -t ${{ env.TEST_JMX }} \
             -l ../../../../artifacts/${{ env.TEST_NAME }}/results.jtl \
             -j ../../../../artifacts/${{ env.TEST_NAME }}/jmeter.log \
             -e -o ../../../../artifacts/${{ env.TEST_NAME }}/html-report \
@@ -305,11 +292,18 @@ jobs:
             -JRPS_END=${RPS_END} \
             -JRAMP_DURATION=${RAMP_DURATION} \
             -JHOLD_DURATION=${HOLD_DURATION} \
-            -JAUTHORIZATION_URL=${AUTHORIZATION_URL} \
             -JDOMAIN=${DOMAIN} \
             -JEMBEDDED_URL_RE=${EMBEDDED_URL_RE} \
             -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
-            -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}
+            -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}"
+          
+          # Add AUTHORIZATION_URL only if auth is enabled
+          if [ "$AUTH_ENABLED" = "true" ]; then
+            JMETER_CMD="$JMETER_CMD -JAUTHORIZATION_URL=${AUTHORIZATION_URL}"
+          fi
+          
+          # Execute JMeter
+          eval $JMETER_CMD
           
           echo "🏁 JMeter test completed!"
 
@@ -372,49 +366,40 @@ jobs:
           set -e
           sudo apt-get update
           sudo apt-get install -y wget
-          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz
-          tar -xzf apache-jmeter-${JMETER_VERSION}.tgz
-          echo "$PWD/apache-jmeter-${JMETER_VERSION}/bin" >> $GITHUB_PATH
-
-      - name: Install JMeter Plugins
-        run: |
-          set -e
-          cd apache-jmeter-${JMETER_VERSION}/lib/ext
+          cd $GITHUB_WORKSPACE
           
-          # Install JMeter Plugins Manager
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
+          wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${{ env.JMETER_VERSION }}.tgz
+          tar -xzf apache-jmeter-${{ env.JMETER_VERSION }}.tgz
           
-          # Install required plugins for UltimateThreadGroup, Throughput Shaping Timer, and Graphs
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-casutg/2.10/jmeter-plugins-casutg-2.10.jar
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-tst/2.6/jmeter-plugins-tst-2.6.jar
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-graphs-basic/2.0/jmeter-plugins-graphs-basic-2.0.jar
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-graphs-additional/2.0/jmeter-plugins-graphs-additional-2.0.jar
+          # Install JMeter plugins
+          cd apache-jmeter-${{ env.JMETER_VERSION }}/lib/ext
+          wget https://jmeter-plugins.org/files/packages/jpgc-graphs-basic-2.0.zip
+          unzip -o jpgc-graphs-basic-2.0.zip
+          wget https://jmeter-plugins.org/files/packages/jpgc-graphs-additional-2.0.zip
+          unzip -o jpgc-graphs-additional-2.0.zip
+          wget https://jmeter-plugins.org/files/packages/jpgc-casutg-2.10.zip
+          unzip -o jpgc-casutg-2.10.zip
+          wget https://jmeter-plugins.org/files/packages/jpgc-tst-2.6.zip
+          unzip -o jpgc-tst-2.6.zip
+          wget https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar
+          wget https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.3/cmdrunner-2.3.jar
           
-          # Install JMeter Plugins Common classes (required dependency)
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-cmn-jmeter/0.7/jmeter-plugins-cmn-jmeter-0.7.jar
+          cd $GITHUB_WORKSPACE
+          export PATH=$GITHUB_WORKSPACE/apache-jmeter-${{ env.JMETER_VERSION }}/bin:$PATH
           
-          cd ../../..
-          echo "✅ JMeter plugins installed"
-
-      - name: Verify JMeter installation
-        run: jmeter --version
-
+          jmeter --version
+          
       - name: Install yq
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      - name: Run JMeter Test - ${{ env.TEST_NAME }}
+      - name: Run Performance Test
+        working-directory: ${{ env.TEST_PATH }}
         run: |
-          set -euo pipefail
+          set -e
+          export PATH=$GITHUB_WORKSPACE/apache-jmeter-${{ env.JMETER_VERSION }}/bin:$PATH
           
-          # Navigate to test directory
-          cd ${{ env.TEST_PATH }}
-          
-          # Create artifacts directory in repo root
-          mkdir -p ../../../../artifacts/${{ env.TEST_NAME }}
-          
-          # Load test parameters from test.yml
           START_THREADS=$(yq '.thread-config.start-threads' test.yml)
           INITIAL_DELAY=$(yq '.thread-config.initial-delay' test.yml)
           STARTUP_TIME=$(yq '.thread-config.startup-time' test.yml)
@@ -427,19 +412,15 @@ jobs:
           DOMAIN=$(yq '.authorization.domain' test.yml)
           EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
           
-          # Set AUTHORIZATION_URL to empty if auth is disabled
-          if [ "$AUTH_ENABLED" = "false" ]; then
-            AUTHORIZATION_URL=""
-          fi
-          
           echo "🚀 Starting JMeter performance test..."
           echo "📝 Test Plan: ${{ env.TEST_NAME }}"
           echo "⏱️  Hold Load: $HOLD_LOAD seconds"
           echo "👥 Users: $START_THREADS concurrent"
           echo "🎯 Target: lgov-perftest.london.gov.uk"
+          echo "🔐 Authorization: $AUTH_ENABLED"
           
-          # Build JMeter command
-          jmeter -n -t ${{ env.TEST_JMX }} \
+          # Build JMeter command with conditional authorization
+          JMETER_CMD="jmeter -n -t ${{ env.TEST_JMX }} \
             -l ../../../../artifacts/${{ env.TEST_NAME }}/results.jtl \
             -j ../../../../artifacts/${{ env.TEST_NAME }}/jmeter.log \
             -e -o ../../../../artifacts/${{ env.TEST_NAME }}/html-report \
@@ -448,11 +429,18 @@ jobs:
             -JSTARTUP_TIME=${STARTUP_TIME} \
             -JHOLD_LOAD=${HOLD_LOAD} \
             -JSHUTDOWN_TIME=${SHUTDOWN_TIME} \
-            -JAUTHORIZATION_URL=${AUTHORIZATION_URL} \
             -JDOMAIN=${DOMAIN} \
             -JEMBEDDED_URL_RE=${EMBEDDED_URL_RE} \
             -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
-            -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}
+            -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}"
+          
+          # Add AUTHORIZATION_URL only if auth is enabled
+          if [ "$AUTH_ENABLED" = "true" ]; then
+            JMETER_CMD="$JMETER_CMD -JAUTHORIZATION_URL=${AUTHORIZATION_URL}"
+          fi
+          
+          # Execute JMeter
+          eval $JMETER_CMD
           
           echo "🏁 JMeter test completed!"
 
@@ -575,23 +563,20 @@ jobs:
           DOMAIN=$(yq '.authorization.domain' test.yml)
           EMBEDDED_URL_RE=$(yq '.authorization.embedded_url_re' test.yml)
           
-          # Set AUTHORIZATION_URL to empty if auth is disabled
-          if [ "$AUTH_ENABLED" = "false" ]; then
-            AUTHORIZATION_URL=""
-          fi
+          echo "🔐 Authorization: $AUTH_ENABLED"
+
           
-          echo "🚀 Starting JMeter performance test..."
-          echo "📝 Test Plan: ${{ env.TEST_NAME }}"
-          echo "⏱️  Hold Load: $HOLD_LOAD seconds"
-          echo "👥 Users: $START_THREADS concurrent"
-          echo "🔧 Throughput: ${RPS_START} → ${RPS_END} RPS over ${RAMP_DURATION}s"
-          echo "🎯 Target: lgov-perftest.london.gov.uk"
-          
-          # Build JMeter command with throughput parameters
-          jmeter -n -t ${{ env.TEST_JMX }} \
+
+          # Build JMeter command with throughput parameters and conditional authorization
+
+          JMETER_CMD="jmeter -n -t ${{ env.TEST_JMX }} \
+
             -l ../../../../artifacts/${{ env.TEST_NAME }}/results.jtl \
+
             -j ../../../../artifacts/${{ env.TEST_NAME }}/jmeter.log \
+
             -e -o ../../../../artifacts/${{ env.TEST_NAME }}/html-report \
+
             -JSTART_THREADS=${START_THREADS} \
             -JINITIAL_DELAY=${INITIAL_DELAY} \
             -JSTARTUP_TIME=${STARTUP_TIME} \
@@ -601,11 +586,19 @@ jobs:
             -JRPS_END=${RPS_END} \
             -JRAMP_DURATION=${RAMP_DURATION} \
             -JHOLD_DURATION=${HOLD_DURATION} \
-            -JAUTHORIZATION_URL=${AUTHORIZATION_URL} \
             -JDOMAIN=${DOMAIN} \
             -JEMBEDDED_URL_RE=${EMBEDDED_URL_RE} \
             -JAUTH_USERNAME=${{ env.AUTH_USERNAME }} \
-            -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}
+            -JAUTH_PASSWORD=${{ env.AUTH_PASSWORD }}"
+
+          
+          # Add AUTHORIZATION_URL only if auth is enabled
+          if [ "$AUTH_ENABLED" = "true" ]; then
+            JMETER_CMD="$JMETER_CMD -JAUTHORIZATION_URL=${AUTHORIZATION_URL}"
+          fi
+          
+          # Execute JMeter
+          eval $JMETER_CMD
           
           echo "🏁 JMeter test completed!"
 
