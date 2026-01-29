@@ -1,0 +1,3 @@
+@echo off
+REM Drop JMeter .log file here to copy it to this directory
+echo Waiting for JMeter log file...

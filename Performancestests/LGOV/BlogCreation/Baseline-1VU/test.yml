@@ -1,0 +1,47 @@
+modules:
+  blazemeter:
+    token: ${BLAZEMETER_API_KEY}
+
+execution:
+  - executor: jmeter
+    scenario: load-test
+
+scenarios:
+  load-test:
+    script: LGOV-PerfTest-BlogCreation-Baseline-1VU.jmx
+
+# Authorization Configuration
+authorization:
+  enabled: true  # Set to true to enable HTTP Basic Authentication
+  url: https://lgov-perftest.london.gov.uk
+  domain: lgov-perftest.london.gov.uk
+  embedded_url_re: "https://lgov-perftest\\.london\\.gov\\.uk/.*"
+
+# Execution Control
+execution-control:
+  allow-concurrent: false  # Set to true to allow multiple instances to run simultaneously
+
+# UltimateThreadGroup Parameters
+thread-config:
+  start-threads: 1        # Number of threads to start
+  initial-delay: 0        # Initial delay in seconds
+  startup-time: 0         # Startup time in seconds
+  hold-load: 600          # Hold load for seconds (10 minutes)
+  shutdown-time: 10       # Shutdown time in seconds
+
+# Blog Creation Test Parameters
+blog-config:
+  title: "performanceTest_${__time(YMD-HMS)}"
+  heading: "PerformanceTestHeading"
+  caption: "performanceCaption"
+  author_url: "www.london.gov.uk"
+  author_link_text: "www.london.gov.uk"
+  
+# Categorisation Parameters
+categorisation:
+  topic: "Business & Economy"
+  area_of_work: "City hall"
+  audience: "Business"
+  borough: "Bexley"
+  committees_boards: "Audit panel"
+  content_type: "Blogs"
